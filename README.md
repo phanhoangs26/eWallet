@@ -171,6 +171,7 @@ Environment variables tùy chọn cho cấu hình:
 - `BREVO_PASSWORD` - Mật khẩu dịch vụ email Brevo
 - `BREVO_FROM_EMAIL` - Địa chỉ email người gửi
 
+<<<<<<< HEAD
 ## 🤝 Đóng góp
 
 1. Fork repository
@@ -190,5 +191,7 @@ Project này được cấp phép theo Giấy phép MIT - xem file LICENSE để
 ## 🙏 Lời cảm ơn
 
 - Spring Boot team cho framework tuyệt vời
+=======
+>>>>>>> d82cdcf4f8331879b195cb27c30beba991507a55
 - PostgreSQL và SQL Server communities
 - Tất cả những người đóng góp đã giúp định hình project này
