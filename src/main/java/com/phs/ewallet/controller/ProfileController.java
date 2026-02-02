@@ -22,9 +22,20 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping("/register")
-    public ResponseEntity<ProfileDTO> registerProfile(@RequestBody ProfileDTO dto) {
-        ProfileDTO registeredProfile = profileService.registerProfile(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
+    public ResponseEntity<?> registerProfile(@RequestBody ProfileDTO dto) {
+        try {
+            ProfileDTO registeredProfile = profileService.registerProfile(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "Email already exists"));
+            }
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Registration failed: " + e.getMessage()));
+        }
     }
 
     /*@GetMapping("/active")

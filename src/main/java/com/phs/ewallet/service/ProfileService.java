@@ -124,7 +124,7 @@ public class ProfileService {
                 .profileImageUrl(dto.getProfileImageUrl())
                 .createdAt(dto.getCreatedAt())
                 .updatedAt(dto.getUpdatedAt())
-                .isActive(dto.getIsActive())
+                .isActive(dto.getIsActive() != null ? dto.getIsActive() : true)
                 .build();
     }
 
