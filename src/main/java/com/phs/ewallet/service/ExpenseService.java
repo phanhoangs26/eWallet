@@ -1,19 +1,21 @@
 package com.phs.ewallet.service;
 
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.phs.ewallet.dto.ExpenseDTO;
 import com.phs.ewallet.entity.Category;
 import com.phs.ewallet.entity.Expense;
 import com.phs.ewallet.entity.Profile;
 import com.phs.ewallet.repository.CategoryRepo;
 import com.phs.ewallet.repository.ExpenseRepo;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +70,29 @@ public class ExpenseService {
         Profile profile = profileService.getCurrentProfile();
         BigDecimal totalExpenses = expenseRepo.findTotalExpenseByProfileId(profile.getId());
         return totalExpenses != null ? totalExpenses : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getCurrentMonthExpenseForCurrentProfile() {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        BigDecimal currentMonthExpense = expenseRepo.findTotalExpenseByProfileIdAndDateAfter(profile.getId(), startOfMonth);
+        return currentMonthExpense != null ? currentMonthExpense : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getExpenseByMonthForCurrentProfile(LocalDate monthDate) {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = monthDate.withDayOfMonth(1);
+        LocalDate endOfMonth = monthDate.withDayOfMonth(monthDate.lengthOfMonth());
+        BigDecimal monthlyExpense = expenseRepo.findTotalExpenseByProfileIdAndDateBetween(profile.getId(), startOfMonth, endOfMonth);
+        return monthlyExpense != null ? monthlyExpense : BigDecimal.ZERO;
+    }
+
+    public int getExpenseCountByMonthForCurrentProfile(LocalDate monthDate) {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = monthDate.withDayOfMonth(1);
+        LocalDate endOfMonth = monthDate.withDayOfMonth(monthDate.lengthOfMonth());
+        Long count = expenseRepo.countExpenseByProfileIdAndDateBetween(profile.getId(), startOfMonth, endOfMonth);
+        return count != null ? count.intValue() : 0;
     }
 
     //filter expenses

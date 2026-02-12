@@ -71,7 +71,7 @@ public class ProfileService {
                 );
     }
 
-    private ProfileDTO getPublicProfile(String email) {
+    public ProfileDTO getPublicProfile(String email) {
         Profile currentProfile;
         if (email == null) {
             currentProfile = getCurrentProfile();

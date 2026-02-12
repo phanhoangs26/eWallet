@@ -5,12 +5,14 @@ import com.phs.ewallet.entity.Category;
 import com.phs.ewallet.entity.Profile;
 import com.phs.ewallet.repository.CategoryRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -23,7 +25,9 @@ public class CategoryService {
         Profile profile = profileService.getCurrentProfile();
         if (categoryRepo.existsByNameAndProfileId(categoryDTO.getName(), profile.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Category already exists");
+
         }
+        // Chỉ chạy đến đây khi không có trùng lặp
         Category newCategory = toEntity(categoryDTO, profile);
         newCategory = categoryRepo.save(newCategory);
         return toDTO(newCategory);

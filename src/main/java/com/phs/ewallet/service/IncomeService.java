@@ -1,18 +1,20 @@
 package com.phs.ewallet.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.phs.ewallet.dto.IncomeDTO;
 import com.phs.ewallet.entity.Category;
 import com.phs.ewallet.entity.Income;
 import com.phs.ewallet.entity.Profile;
 import com.phs.ewallet.repository.CategoryRepo;
 import com.phs.ewallet.repository.IncomeRepo;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +46,22 @@ public class IncomeService {
         return incomes.stream().map(this::toDTO).toList();
     }
 
+    public BigDecimal getIncomeByMonthForCurrentProfile(LocalDate monthDate) {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = monthDate.withDayOfMonth(1);
+        LocalDate endOfMonth = monthDate.withDayOfMonth(monthDate.lengthOfMonth());
+        BigDecimal monthlyIncome = incomeRepo.findTotalIncomeByProfileIdAndDateBetween(profile.getId(), startOfMonth, endOfMonth);
+        return monthlyIncome != null ? monthlyIncome : BigDecimal.ZERO;
+    }
+
+    public int getIncomeCountByMonthForCurrentProfile(LocalDate monthDate) {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = monthDate.withDayOfMonth(1);
+        LocalDate endOfMonth = monthDate.withDayOfMonth(monthDate.lengthOfMonth());
+        Long count = incomeRepo.countIncomeByProfileIdAndDateBetween(profile.getId(), startOfMonth, endOfMonth);
+        return count != null ? count.intValue() : 0;
+    }
+
     //delete income by id for current profile
     public void deleteIncome(Long incomeId) {
         Profile profile = profileService.getCurrentProfile();
@@ -52,6 +70,7 @@ public class IncomeService {
         if (!income.getProfile().getId().equals(profile.getId())) {
             throw new RuntimeException("Unauthorized to delete this income");
         }
+        incomeRepo.delete(income);
     }
 
     //get latest 5 incomes for current profile
@@ -68,6 +87,13 @@ public class IncomeService {
         return totalIncomes != null ? totalIncomes : BigDecimal.ZERO;
     }
 
+    public BigDecimal getCurrentMonthIncomeForCurrentProfile() {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        BigDecimal currentMonthIncome = incomeRepo.findTotalIncomeByProfileIdAndDateAfter(profile.getId(), startOfMonth);
+        return currentMonthIncome != null ? currentMonthIncome : BigDecimal.ZERO;
+    }
+
     //filter incomes
     public List<IncomeDTO> filterIncomes(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
         Profile profile = profileService.getCurrentProfile();
@@ -81,6 +107,7 @@ public class IncomeService {
         return expenses.stream().map(this::toDTO).toList();
     }
 
+    
     //=====================================================//
     //helper method
     public Income toEntity(IncomeDTO incomeDTO, Profile profile, Category category) {
